@@ -1,0 +1,70 @@
+(c-include "imgui_src.h") 
+
+(define-c void (use_bool "use_bool") (imgui_bool))
+(define-c boolean (is-android? "is_android") (void))
+
+
+
+(define-c-struct imgui_bool
+  constructor: (make-imgui-bool the_bool)
+  (bool the_bool imgui-bool-get imgui-bool-set))
+
+
+(define-c-const int (imgui-flags/no-collapse "ImGuiWindowFlags_NoCollapse"))
+
+(define-c boolean (imgui-begin1 "imgui_begin1") (string int))
+(define-c boolean (imgui-begin2 "imgui_begin2") (string imgui_bool int))
+(define-c void (imgui-end "ImGui_End") (void))
+
+(define-c boolean (imgui-button "ImGui_Button") (string))
+
+
+
+(define-c-struct ImVec2_t
+  constructor: (make-imgui-imvec2 x y)
+  (float x imgui-imvec2-x-get imgui-imvec2-x-set)
+  (float y imgui-imvec2-y-get imgui-imvec2-y-set))
+
+(define-c-const int (imgui-flags/once "ImGuiCond_Once"))
+(define-c-const int (imgui-flags/allow-tab-input "ImGuiInputTextFlags_AllowTabInput"))
+(define-c-const int (imgui-flags/read-only "ImGuiInputTextFlags_ReadOnly"))
+
+(define-c void (imgui-set-next-window-size "ImGui_SetNextWindowSize") ((struct ImVec2_t) int))
+
+
+;; CIMGUI_API void ImGui_Text(const char* fmt, ...) IM_FMTARGS(1);                                    // formatted text
+;;(define-c void (imgui-text "ImGui_Text") (string))
+(define-c void (imgui-same-line "ImGui_SameLine") (void))
+(define-c boolean (imgui-begin-child-c "ImGui_BeginChild") (string (struct ImVec2_t) boolean int))
+(define-c void (imgui-end-child "ImGui_EndChild") (void))
+(define-c float (imgui-get-frame-height-with-spacing "ImGui_GetFrameHeightWithSpacing") (void))
+(define-c float (imgui-get-text-line-height "ImGui_GetTextLineHeight") (void))
+
+(define-c void (imgui-begin-group "ImGui_BeginGroup") (void))
+(define-c void (imgui-end-group "ImGui_EndGroup") (void))
+
+
+(define-c-struct imgui_text_buffer
+  constructor: (make-imgui_text_buffer)
+  (int maxlen imgui-text-buffer-maxlen-get imgui-text-buffer-maxlen-set))
+
+
+(define-c void init_imgui_text_buffer (imgui_text_buffer int))
+(define-c void (set-imgui-text-buffer "set_imgui_text_buffer") (imgui_text_buffer string))
+(define-c string (get-imgui-text-buffer "get_imgui_text_buffer") (imgui_text_buffer))
+
+
+
+;;        //bool InputTextMultiline(const char* label, char* buf, size_t buf_size, const ImVec2& size = ImVec2(0,0),
+;;                                  ImGuiInputTextFlags flags = 0,
+;;                                  ImGuiInputTextCallback callback = NULL, void* user_data = NULL)
+;; TODO: callback and user_data
+(define-c boolean (imgui-input-text-multiline-c "imgui_input_text_multiline_c") (string imgui_text_buffer (struct ImVec2_t) int))
+
+
+
+
+
+
+
+

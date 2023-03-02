@@ -1,0 +1,66 @@
+diff --git a/examples/example_glfw_opengl3/Makefile b/examples/example_glfw_opengl3/Makefile
+index 252ce571..c197c48c 100644
+--- a/examples/example_glfw_opengl3/Makefile
++++ b/examples/example_glfw_opengl3/Makefile
+@@ -41,9 +41,10 @@ LIBS =
+ 
+ ifeq ($(UNAME_S), Linux) #LINUX
+ 	ECHO_MESSAGE = "Linux"
+-	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3`
+-
++	LIBS += $(LINUX_GL_LIBS) `pkg-config --libs glfw3`
++	LIBS += -ldl
+ 	CXXFLAGS += `pkg-config --cflags glfw3`
++
+ 	CFLAGS = $(CXXFLAGS)
+ endif
+ 
+diff --git a/imconfig.h b/imconfig.h
+index e3dc27f6..2a4e1975 100644
+--- a/imconfig.h
++++ b/imconfig.h
+@@ -95,7 +95,7 @@
+ // Your renderer backend will need to support it (most example renderer backends support both 16/32-bit indices).
+ // Another way to allow large meshes while keeping 16-bit indices is to handle ImDrawCmd::VtxOffset in your renderer.
+ // Read about ImGuiBackendFlags_RendererHasVtxOffset for details.
+-//#define ImDrawIdx unsigned int
++#define ImDrawIdx unsigned int
+ 
+ //---- Override ImDrawCallback signature (will need to modify renderer backends accordingly)
+ //struct ImDrawList;
+diff --git a/imgui.cpp b/imgui.cpp
+index c576f74d..ef5b8fcf 100644
+--- a/imgui.cpp
++++ b/imgui.cpp
+@@ -5834,9 +5834,12 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow* window, const ImVec2& s
+     bool ret_auto_fit = false;
+     const int resize_border_count = g.IO.ConfigWindowsResizeFromEdges ? 4 : 0;
+     const float grip_draw_size = IM_FLOOR(ImMax(g.FontSize * 1.35f, window->WindowRounding + 1.0f + g.FontSize * 0.2f));
++    #ifdef __ANDROID__
++    const float grip_hover_inner_size = IM_FLOOR(grip_draw_size * 1.5f); // bigger catchment area for finger/resize
++    #else
+     const float grip_hover_inner_size = IM_FLOOR(grip_draw_size * 0.75f);
++    #endif
+     const float grip_hover_outer_size = g.IO.ConfigWindowsResizeFromEdges ? WINDOWS_HOVER_PADDING : 0.0f;
+-
+     ImVec2 pos_target(FLT_MAX, FLT_MAX);
+     ImVec2 size_target(FLT_MAX, FLT_MAX);
+ 
+diff --git a/imgui_internal.h b/imgui_internal.h
+index 599b4e10..5b908631 100644
+--- a/imgui_internal.h
++++ b/imgui_internal.h
+@@ -2185,7 +2185,12 @@ public:
+     // We don't use g.FontSize because the window may be != g.CurrentWindow.
+     ImRect      Rect() const            { return ImRect(Pos.x, Pos.y, Pos.x + Size.x, Pos.y + Size.y); }
+     float       CalcFontSize() const    { ImGuiContext& g = *GImGui; float scale = g.FontBaseSize * FontWindowScale; if (ParentWindow) scale *= ParentWindow->FontWindowScale; return scale; }
+-    float       TitleBarHeight() const  { ImGuiContext& g = *GImGui; return (Flags & ImGuiWindowFlags_NoTitleBar) ? 0.0f : CalcFontSize() + g.Style.FramePadding.y * 2.0f; }
++
++    #ifdef __ANDROID__
++        float       TitleBarHeight() const  { ImGuiContext& g = *GImGui; return (Flags & ImGuiWindowFlags_NoTitleBar) ? 0.0f : CalcFontSize() + g.Style.FramePadding.y * 6.0f; }
++    #else
++        float       TitleBarHeight() const  { ImGuiContext& g = *GImGui; return (Flags & ImGuiWindowFlags_NoTitleBar) ? 0.0f : CalcFontSize() + g.Style.FramePadding.y * 2.0f; }
++    #endif
+     ImRect      TitleBarRect() const    { return ImRect(Pos, ImVec2(Pos.x + SizeFull.x, Pos.y + TitleBarHeight())); }
+     float       MenuBarHeight() const   { ImGuiContext& g = *GImGui; return (Flags & ImGuiWindowFlags_MenuBar) ? DC.MenuBarOffset.y + CalcFontSize() + g.Style.FramePadding.y * 2.0f : 0.0f; }
+     ImRect      MenuBarRect() const     { float y1 = Pos.y + TitleBarHeight(); return ImRect(Pos.x, y1, Pos.x + SizeFull.x, y1 + MenuBarHeight()); }
