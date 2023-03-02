@@ -7,6 +7,7 @@ function download_imgui {
     git clone https://github.com/ocornut/imgui.git
     cd imgui
     git checkout c7d3d22ae1e2b8f84ae30a922099873d5016e6d6
+    cd ../../
 }
 
 function download_chibi {
@@ -15,6 +16,7 @@ function download_chibi {
     git clone https://github.com/ashinn/chibi-scheme.git
     cd chibi-scheme
     git checkout da53f46c93477a920e2e6b55c96c793cbd955fb8
+    cd ../../
 }
 
 function download_setup_cimgui {
@@ -32,6 +34,7 @@ function patch_imgui {
     echo "patch_imgui"
     cd deps/imgui/
     git apply ../../patches/imgui.patch
+    cd ../../
 }
 
 function patch_chibi {
@@ -41,11 +44,13 @@ function patch_chibi {
     cd ..
     mv chibi-scheme chibi-scheme-dynamic
     cp -r chibi-scheme-dynamic chibi-scheme-static
+    cd ..
 }
 
 function build_dynamic_chibi {
     cd deps/chibi-scheme-dynamic/
     make -j8
+    cd ../../
 }
     
 function link_libs {
@@ -64,6 +69,6 @@ link_libs
 
 build_dynamic_chibi
 
-
+mkdir -p build/
 
 
